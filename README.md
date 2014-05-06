@@ -1,4 +1,4 @@
 +equilibrium
- +===========
- +
- +Project Equilibrium exploits cryptocurrency market inefficiencies for profit.
++===========
++
++Project Equilibrium exploits cryptocurrency market inefficiencies for profit.
