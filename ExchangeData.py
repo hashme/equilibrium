@@ -7,6 +7,8 @@ import time
 import json
 from multiprocessing import Process, Lock
 
+DEBUG = True
+
 class ExchangeData:
     def lprint(self,text):
         with self.printlock:
@@ -28,6 +30,7 @@ class ExchangeData:
             except Exception as e:
                 self.lprint('! ERROR GRABBING DATA IN EXCHANGE {0}'.format(self.name))
                 self.lprint('! ' + str(e))
+                if DEBUG:raise
         self.cleanup()
     def balance(self):
         pass
@@ -77,7 +80,7 @@ class BTCE(ExchangeData):
         orderbook = {}
         self.conn.request("GET","/api/3/depth/"+'-'.join(self.pairs))
         response = json.load(self.conn.getresponse())
-        for pair,data in response.keys():
+        for pair,data in response.items():
             CUR_1,CUR_2 = map(lambda x:x.upper(),pair.split("_"))
             asks = data['asks']
             bids = data['bids']
@@ -86,7 +89,7 @@ class BTCE(ExchangeData):
                 orderbook[CUR_1][CUR_2].append({'fixed_cost':0.0,'variable_cost':variable_cost,'volume':volume})
             orderbook[CUR_2][CUR_1] = []
             for variable_cost,volume in bids:
-                orderbook[CUR_2][CUR_1].append('fixed_cost':0.0,'variable_cost':1.0/variable_cost,'volume':volume})
+                orderbook[CUR_2][CUR_1].append({'fixed_cost':0.0,'variable_cost':1.0/variable_cost,'volume':volume})
         return orderbook
     def cleanup(self):
         self.conn.close()
