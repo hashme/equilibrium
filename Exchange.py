@@ -150,19 +150,21 @@ class BITFINEX(Exchange):
         bids = data['bids']
         orderbook = {'LTC_BITFINEX':{'BTC_BITFINEX':[]},'BTC_BITFINEX':{'LTC_BITFINEX':[]}}
         for item in bids:
-            orderbook['LTC_BITFINEX']['BTC_BITFINEX'].append({'cost':0.0,'ratio':float(item['price']),'volume':float(item['amount']}))
+            orderbook['LTC_BITFINEX']['BTC_BITFINEX'].append({'cost':0.0,'ratio':float(item['price']),'volume':float(item['amount'])})
         for item in asks:
             orderbook['BTC_BITFINEX']['LTC_BITFINEX'].append({'cost':0.0,'ratio':1.0/float(item['price']),'volume':float(item['amount'])*float(item['price'])})
+        return orderbook
     def balance(self):
         pass
     def cleanup(self):
         self.conn.close()
 
 def testUpdate(valuable,unvaluable,orderbook):
+#    print orderbook
     CUR_1 = valuable
     CUR_2 = unvaluable
-    print CUR_1,CUR_2,orderbook[CUR_1][CUR_2]
-    print CUR_2,CUR_1,orderbook[CUR_2][CUR_1]
+#    print CUR_1,CUR_2,orderbook[CUR_1][CUR_2]
+#    print CUR_2,CUR_1,orderbook[CUR_2][CUR_1]
     prices = [
               orderbook[CUR_2][CUR_1][0]['ratio'],
               1./orderbook[CUR_1][CUR_2][0]['ratio'],
@@ -181,12 +183,10 @@ def testUpdate(valuable,unvaluable,orderbook):
     time.sleep(10000)
 
 plock = Lock()
-bitce = BTCE(functools.partial(testUpdate,'BTC_BTCE','LTC_BTCE'),plock)
+#bitce = BTCE(functools.partial(testUpdate,'BTC_BTCE','LTC_BTCE'),plock)
 bitfinex = BITFINEX(functools.partial(testUpdate,'BTC_BITFINEX','LTC_BITFINEX'),plock)
-time.sleep(10)
-bitce.lprint(bitce.balance())
-
-
+#time.sleep(10)
+#bitce.lprint(bitce.balance())
 
 class MINTPAL(Exchange):
     def initialize(self):
