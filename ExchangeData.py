@@ -23,7 +23,7 @@ class ExchangeData:
         self.initialize()
         while True:
             try:
-                self.callback(self.frame())
+                self.update(self.frame())
             except KeyboardInterrupt:
                 self.lprint('! CAUGHT KEYBOARD INTERRUPT')
                 break
@@ -34,8 +34,8 @@ class ExchangeData:
         self.cleanup()
     def balance(self):
         pass
-    def __init__(self, callback, printlock):
-        self.callback = callback
+    def __init__(self, update, printlock):
+        self.update = update
         self.printlock = printlock
         p = Process(target = self.run)
         p.start()
@@ -103,8 +103,10 @@ class BTCE(ExchangeData):
     def cleanup(self):
         self.conn.close()
 
-def loprint(text):print text
-bitce = BTCE(loprint,Lock())
+def testUpdate(orderbook):
+    print orderbook.keys()
+    time.sleep(10000)
+bitce = BTCE(testUpdate,Lock())
 
 class BITFINEX(ExchangeData):
     def initialize(self):
