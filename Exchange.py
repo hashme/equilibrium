@@ -309,7 +309,7 @@ class BTER(Exchange):
         # Conversion from cost in terms of CUR_1 before trade to cost in terms of CUR_2 after trade
         # (which is what we want) is cost_in_CUR_1_before_trade * ratio = cost_in_CUR_2_after_trade.
         orderbook = {'BTC_BTER': {}}
-        for coin in coins:
+        for coin in self.coins:
             # We need to populate the cost field correctly later
             conn = httplib.HTTPSConnection('data.bter.com')
             # This gives us buy orders for the coin in btc
@@ -330,6 +330,8 @@ class POLONIEX(Exchange):
         # Is called to initialize this module.
         # Recommend setting self.conn and all instance variables.
         self.name = 'POLONIEX'
+        self.conn = httplib.HTTPSConnection('poloniex.com')
+        self.coins = ['LTC', 'DOGE']
     def balance(self):
         # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
         pass
@@ -346,7 +348,15 @@ class POLONIEX(Exchange):
         # If we start with volume of CUR_1, we can instantly turn it into (ratio*volume)-cost of CUR_2.
         # Conversion from cost in terms of CUR_1 before trade to cost in terms of CUR_2 after trade
         # (which is what we want) is cost_in_CUR_1_before_trade * ratio = cost_in_CUR_2_after_trade.
-        pass
+        orderbook = {'BTC_POLONIEX'}
+        for coin in self.coins:
+            params = {'command': 'returnOrderBook', 'currencyPair': 'BTC_'+coin}
+            self.conn.request('GET', '/public')
+            data = json.load(self.conn.getresponse())
+            orderbook['BTC_POLONIEX'][coin+'_POLONIEX'] = {'ratio': data['asks'][0][0], 'cost': 0.00, 'volume': data['asks'][0][1]}
+            orderbook[coin+'_POLONIEX'] = {}
+            orderbook[coin+'_POLONIEX']['BTC_POLONIEX'] = {'ratio': data['bids'][0][0], 'cost': 0.00, 'volume': bids['asks'][0][1]}
+        return orderbook
     def cleanup(self):
         # Called on exit. self.conn.close()?
         pass
