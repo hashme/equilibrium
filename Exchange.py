@@ -119,7 +119,7 @@ class BTCE(Exchange):
                 orderbook[CUR_1][CUR_2].append({'cost':0.0,'ratio':ratio,'volume':volume})
             orderbook[CUR_2][CUR_1] = []
             for ratio,volume in asks:
-                orderbook[CUR_2][CUR_1].append({'cost':0.0,'ratio':1.0/ratio,'volume':volume*ratio})
+                orderbook[CUR_2][CUR_1].append({'cost':0.0,'ratio':1.0/ratio,'volume':float(volume)*ratio})
         return orderbook
     def cleanup(self):
         self.conn.close()
@@ -129,8 +129,8 @@ class BITFINEX(Exchange):
         self.name = 'BITFINEX'
         self.conn = httplib.HTTPSConnection("api.bitfinex.com")
         self.conn.request("GET","/v1/symbols")
-        response = self.conn.getresponse()
-        if response!='["btcusd","ltcusd","ltcbtc"]':
+        response = json.load(self.conn.getresponse())
+        if response!=["btcusd","ltcusd","ltcbtc"]:
             self.lprint("! ERROR INITIALIZING BITFINEX - CURRENCIES DON'T MATCH UP"+'\n! '+response)
             raise Exception
     def balance(self):
@@ -150,9 +150,9 @@ class BITFINEX(Exchange):
         bids = data['bids']
         orderbook = {'LTC_BITFINEX':{'BTC_BITFINEX':[]},'BTC_BITFINEX':{'LTC_BITFINEX':[]}}
         for item in bids:
-            orderbook['LTC_BITFINEX']['BTC_BITFINEX'].append({'cost':0.0,'ratio':item['price'],'volume':item['amount']})
+            orderbook['LTC_BITFINEX']['BTC_BITFINEX'].append({'cost':0.0,'ratio':float(item['price']),'volume':float(item['amount']}))
         for item in asks:
-            orderbook['BTC_BITFINEX']['LTC_BITFINEX'].append({'cost':0.0,'ratio':1.0/item['price'],'volume':item['amount']*item['price']})
+            orderbook['BTC_BITFINEX']['LTC_BITFINEX'].append({'cost':0.0,'ratio':1.0/float(item['price']),'volume':float(item['amount'])*float(item['price'])})
     def balance(self):
         pass
     def cleanup(self):
