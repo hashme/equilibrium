@@ -5,6 +5,7 @@ import hashlib
 import hmac
 import time
 import json
+import functools
 from multiprocessing import Process, Lock
 
 DEBUG = True
@@ -84,12 +85,12 @@ class BTCE(ExchangeData):
         funds = json.load(response)['funds']
         return dict(map(lambda i:(i[0].upper()+'_BTCE',i[1]),funds))
     def frame(self):
-        orderbook = dict([(CUR,{}) for CUR in self.currencies])
-        orderbook = dict([(CUR,orderbook.copy()) for CUR in self.currencies])
+        orderbook = dict([(CUR+'_BTCE',{}) for CUR in self.currencies])
+        orderbook = dict([(CUR+'_BTCE',orderbook.copy()) for CUR in self.currencies])
         self.conn.request("GET","/api/3/depth/"+'-'.join(self.pairs))
         response = json.load(self.conn.getresponse())
         for pair,data in response.items():
-            CUR_1,CUR_2 = pair.upper().split('_')
+            CUR_1,CUR_2 = map(lambda x:x+'_BTCE',pair.upper().split('_'))
             asks = data['asks']
             bids = data['bids']
             orderbook[CUR_1][CUR_2] = []
@@ -102,19 +103,29 @@ class BTCE(ExchangeData):
     def cleanup(self):
         self.conn.close()
 
-def testUpdate(orderbook):
+def testUpdate(valuable,unvaluable,orderbook):
+    CUR_1 = valuable
+    CUR_2 = unvaluable
     prices = [
-              1./orderbook['BTC']['LTC'][0]['variable_cost'],
-              orderbook['LTC']['BTC'][0]['variable_cost'],
-              1./orderbook['LTC']['BTC'][0]['variable_cost'],
-              orderbook['BTC']['LTC'][0]['variable_cost']
+              1./orderbook[CUR_1][CUR_2][0]['variable_cost'],
+              orderbook[CUR_2][CUR_1][0]['variable_cost'],
+              1./orderbook[CUR_2][CUR_1][0]['variable_cost'],
+              orderbook[CUR_1][CUR_2][0]['variable_cost']
 ]
-    print prices
-    print sorted(prices)
+    if (prices == sorted(prices)):
+        print 'seems to be working'
+        print prices
+        print sorted(prices)
+    else:
+        print 'does not seem to be working'
+        print prices
+        print sorted(prices)
     # should be the same
     time.sleep(10000)
 
-bitce = BTCE(testUpdate,Lock())
+bitce = BTCE(functools.partial(testUpdate,'BTC_BTCE','LTC_BTCE'),Lock())
+time.sleep(10)
+bitce.lprint(bitce.balance())
 
 class BITFINEX(ExchangeData):
     def initialize(self):
