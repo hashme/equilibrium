@@ -42,8 +42,8 @@ cost is the transaction cost for this trade, in terms of CUR_2
 so executing this trade start with volume of CUR_1, end with ratio * volume - cost in CUR_2
 cost usually refers to transaction fees, and will usually be negligible, so can often be ignored
 
-orderbook[CUR_1][CUR_2]['ratio'] > 1.0/orderbook[CUR_2][CUR_1]['ratio']
-(since the first one is an immediate trade of CUR_1 for CUR_2)
+orderbook[CUR_1][CUR_2]['ratio'] < 1.0/orderbook[CUR_2][CUR_1]['ratio']
+(more ratio means more bang for your buck; immediate trades are terrible bangforbuck)
 
 
 balance[CUR] = float

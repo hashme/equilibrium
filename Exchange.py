@@ -114,12 +114,12 @@ class BTCE(Exchange):
             asks = data['asks']
             bids = data['bids']
             orderbook[CUR_1][CUR_2] = []
-            # Fees aren't being taken into account - eventually they should be
-            for variable_cost,volume in asks:
-                orderbook[CUR_1][CUR_2].append({'fixed_cost':0.0,'variable_cost':variable_cost,'volume':volume})
+            # Fees aren't being taken into account - eventually they should be; put them into cost.
+            for ratio,volume in asks:
+                orderbook[CUR_1][CUR_2].append({'cost':0.0,'ratio':ratio,'volume':volume})
             orderbook[CUR_2][CUR_1] = []
-            for variable_cost,volume in bids:
-                orderbook[CUR_2][CUR_1].append({'fixed_cost':0.0,'variable_cost':1.0/variable_cost,'volume':volume})
+            for ratio,volume in bids:
+                orderbook[CUR_2][CUR_1].append({'cost':0.0,'ratio':1.0/ratio,'volume':volume})
         return orderbook
     def cleanup(self):
         self.conn.close()
@@ -128,10 +128,10 @@ def testUpdate(valuable,unvaluable,orderbook):
     CUR_1 = valuable
     CUR_2 = unvaluable
     prices = [
-              1./orderbook[CUR_1][CUR_2][0]['variable_cost'],
-              orderbook[CUR_2][CUR_1][0]['variable_cost'],
-              1./orderbook[CUR_2][CUR_1][0]['variable_cost'],
-              orderbook[CUR_1][CUR_2][0]['variable_cost']
+              1./orderbook[CUR_1][CUR_2][0]['ratio'],
+              orderbook[CUR_2][CUR_1][0]['ratio'],
+              1./orderbook[CUR_2][CUR_1][0]['ratio'],
+              orderbook[CUR_1][CUR_2][0]['ratio']
 ]
     if (prices == sorted(prices)):
         print 'seems to be working'
@@ -174,9 +174,9 @@ class BITFINEX(Exchange):
         bids = data['bids']
         orderbook = {'LTC_BITFINEX':{'BTC_BITFINEX':[]},'BTC_BITFINEX':{'LTC_BITFINEX':[]}}
         for item in asks:
-            orderbook['LTC_BITFINEX']['BTC_BITFINEX'].append({'fixed_cost':0.0,'variable_cost':,'volume':})
+            orderbook['LTC_BITFINEX']['BTC_BITFINEX'].append({'cost':0.0,'ratio':,'volume':})
         for item in bids:
-            orderbook['BTC_BITFINEX']['LTC_BITFINEX'].append({'fixed_cost':0.0,'variable_cost':,'volume':})
+            orderbook['BTC_BITFINEX']['LTC_BITFINEX'].append({'cost':0.0,'ratio':,'volume':})
 
 
             for variable_cost,volume in asks:
