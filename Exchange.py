@@ -100,7 +100,7 @@ class BTCE(Exchange):
         response = self.conn.getresponse()
         funds = json.load(response)['funds']
         return dict(map(lambda i:(i[0].upper()+'_BTCE',i[1]),funds))
-    def trade(self, currency_from, currency_to, ratio, volume):
+    def trade(self, currency_from, currency_to, ratio, amount):
         pass
     def transfer(self, currency, amount, address):
         pass
@@ -125,6 +125,18 @@ class BTCE(Exchange):
         self.conn.close()
 
 class BITFINEX(Exchange):
+    def getNonce(self):
+        nonce = ''
+        try:
+            f_h = open('bitfinexnonce.dat')
+            nonce = int(f_h.read())+1
+            f_h.close()
+        except:
+            nonce = int(time.time())
+        f_h = open('bitfinexnonce.dat','w')
+        f_h.write(str(nonce))
+        f_h.close()
+        return str(nonce)
     def initialize(self):
         self.name = 'BITFINEX'
         self.conn = httplib.HTTPSConnection("api.bitfinex.com")
