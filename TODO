@@ -12,17 +12,11 @@ EXMONEY: ExMoney
 
 MODULE STRUCTURE
 
--> Exchange data module
+-> Exchange module
 --> Classes represent exchanges
---> Instantiate a class with an update function, delay
+--> Instantiate a class with an update function
 --> Every frame it calls update with orderbook data structure below
---> balance returns balance data structure
-
--> Exchange trading/transfer module
---> Classes represent exchanges
---> Function to trade one currency for another, blocks until complete or returns exception
---> Function to transfer a currency to an address, blocks until complete or returns exception
---> Locks on the exchange (??!?!?!!)
+--> Class implements initialize, frame, cleanup, balance, trade, and transfer
 
 -> Brain module
 --> Initialization

@@ -15,17 +15,24 @@ class Exchange:
         with self.printlock:
             print text
     def initialize(self):
-        pass
-    def frame(self):
-        pass
-    def cleanup(self):
-        pass
+        # Is called to initialize this module. 
+        # Recommend setting self.conn and all instance variables.
+        self.name = 'EXCHANGE'
     def balance(self):
+        # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
         pass
-    def trade(self, currency_from, currency_to, amount, price):
-        # This is just executing the trade orderbook[currency_from][currency_to] = {volume:amount}
+    def trade(self, currency_from, currency_to, ratio, amount):
+        # Executes trade corresponding to orderbook[currency_from][currency_to] = {'ratio':ratio,'volume':amount}
+        # Blocks until trade is complete.
         pass
     def transfer(self, currency, amount, address):
+        # Transfers currency (e.g, "BTC_EXCHANGE") in amount amount to external address address.
+        pass
+    def frame(self):
+        # Is called very often and must return orderbook.
+        # orderbook[CUR_1][CUR_2] = {'ratio':ratio,'cost':cost,'volume':volume}
+        pass
+    def cleanup(self):
         pass
     def run(self):
         self.initialize()
@@ -89,6 +96,10 @@ class BTCE(Exchange):
         response = self.conn.getresponse()
         funds = json.load(response)['funds']
         return dict(map(lambda i:(i[0].upper()+'_BTCE',i[1]),funds))
+    def trade(self, currency_from, currency_to, ratio, volume):
+        pass
+    def transfer(self, currency, amount, address):
+        pass
     def frame(self):
         orderbook = dict([(CUR+'_BTCE',{}) for CUR in self.currencies])
         orderbook = dict([(CUR+'_BTCE',orderbook.copy()) for CUR in self.currencies])
