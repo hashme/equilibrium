@@ -34,6 +34,7 @@ DATA STRUCTURES
 
 
 orderbook[CUR_1][CUR_2] = [{'ratio':1.02,'cost':0.0,'volume':30},...]
+orderbook refers to trades from CUR_1 to CUR_2 which will execute immediately
 trade starting from CUR_1 ending in CUR_2
 trading CUR_1 for CUR_2
 ratio means if we have volume of CUR_1, we'll end up with volume*ratio of CUR_2

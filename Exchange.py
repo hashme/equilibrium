@@ -115,38 +115,14 @@ class BTCE(Exchange):
             bids = data['bids']
             orderbook[CUR_1][CUR_2] = []
             # Fees aren't being taken into account - eventually they should be; put them into cost.
-            for ratio,volume in asks:
+            for ratio,volume in bids:
                 orderbook[CUR_1][CUR_2].append({'cost':0.0,'ratio':ratio,'volume':volume})
             orderbook[CUR_2][CUR_1] = []
-            for ratio,volume in bids:
-                orderbook[CUR_2][CUR_1].append({'cost':0.0,'ratio':1.0/ratio,'volume':volume})
+            for ratio,volume in asks:
+                orderbook[CUR_2][CUR_1].append({'cost':0.0,'ratio':1.0/ratio,'volume':volume*ratio})
         return orderbook
     def cleanup(self):
         self.conn.close()
-
-def testUpdate(valuable,unvaluable,orderbook):
-    CUR_1 = valuable
-    CUR_2 = unvaluable
-    prices = [
-              1./orderbook[CUR_1][CUR_2][0]['ratio'],
-              orderbook[CUR_2][CUR_1][0]['ratio'],
-              1./orderbook[CUR_2][CUR_1][0]['ratio'],
-              orderbook[CUR_1][CUR_2][0]['ratio']
-]
-    if (prices == sorted(prices)):
-        print 'seems to be working'
-        print prices
-        print sorted(prices)
-    else:
-        print 'does not seem to be working'
-        print prices
-        print sorted(prices)
-    # should be the same
-    time.sleep(10000)
-
-bitce = BTCE(functools.partial(testUpdate,'BTC_BTCE','LTC_BTCE'),Lock())
-time.sleep(10)
-bitce.lprint(bitce.balance())
 
 class BITFINEX(Exchange):
     def initialize(self):
@@ -173,22 +149,44 @@ class BITFINEX(Exchange):
         asks = data['asks']
         bids = data['bids']
         orderbook = {'LTC_BITFINEX':{'BTC_BITFINEX':[]},'BTC_BITFINEX':{'LTC_BITFINEX':[]}}
-        for item in asks:
-            orderbook['LTC_BITFINEX']['BTC_BITFINEX'].append({'cost':0.0,'ratio':,'volume':})
         for item in bids:
-            orderbook['BTC_BITFINEX']['LTC_BITFINEX'].append({'cost':0.0,'ratio':,'volume':})
-
-
-            for variable_cost,volume in asks:
-                orderbook[CUR_1][CUR_2].append({'fixed_cost':0.0,'variable_cost':variable_cost,'volume':volume})
-            orderbook[CUR_2][CUR_1] = []
-            for variable_cost,volume in bids:
-                orderbook[CUR_2][CUR_1].append({'fixed_cost':0.0,'variable_cost':1.0/variable_cost,'volume':volume})
-        
+            orderbook['LTC_BITFINEX']['BTC_BITFINEX'].append({'cost':0.0,'ratio':item['price'],'volume':item['amount']})
+        for item in asks:
+            orderbook['BTC_BITFINEX']['LTC_BITFINEX'].append({'cost':0.0,'ratio':1.0/item['price'],'volume':item['amount']*item['price']})
     def balance(self):
         pass
     def cleanup(self):
         self.conn.close()
+
+def testUpdate(valuable,unvaluable,orderbook):
+    CUR_1 = valuable
+    CUR_2 = unvaluable
+    print CUR_1,CUR_2,orderbook[CUR_1][CUR_2]
+    print CUR_2,CUR_1,orderbook[CUR_2][CUR_1]
+    prices = [
+              orderbook[CUR_2][CUR_1][0]['ratio'],
+              1./orderbook[CUR_1][CUR_2][0]['ratio'],
+              orderbook[CUR_1][CUR_2][0]['ratio'],
+              1./orderbook[CUR_2][CUR_1][0]['ratio']
+]
+    if (prices == sorted(prices)):
+        print 'seems to be working'
+        print prices
+        print sorted(prices)
+    else:
+        print 'does not seem to be working'
+        print prices
+        print sorted(prices)
+    # should be the same
+    time.sleep(10000)
+
+plock = Lock()
+bitce = BTCE(functools.partial(testUpdate,'BTC_BTCE','LTC_BTCE'),plock)
+bitfinex = BITFINEX(functools.partial(testUpdate,'BTC_BITFINEX','LTC_BITFINEX'),plock)
+time.sleep(10)
+bitce.lprint(bitce.balance())
+
+
 
 class MINTPAL(Exchange):
     def initialize(self):
