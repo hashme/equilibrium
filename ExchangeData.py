@@ -55,11 +55,12 @@ class BTCE(ExchangeData):
         self.name = 'BTCE'
         self.BTC_api_key = "E7UP1XGZ-YVSGL06A-1IIMJBLC-EQFQT2JV-DY4QED4H"
         self.BTC_api_secret = "59445bb18d7a33cc40f803a2a72f7ac2e687ccd11ddbd8e5843be56b30eb5755"
+        self.forbidden_currencies = ['USD','CNC']
         self.conn = httplib.HTTPSConnection("btc-e.com")
         self.conn.request("GET","/api/3/info")
         response = json.load(self.conn.getresponse())
-        self.fees = dict(map(lambda i: (i[0],i[1]['fee']),response['pairs'].items()))
-        self.pairs = self.fees.keys()
+        self.fees = dict(map(lambda i: (i[0],float(i[1]['fee'])/100.),response['pairs'].items()))
+        self.pairs = filter(lambda x:x not in self.forbidden_currencies,self.fees.keys())
     def balance(self):
         H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
         nonce = self.getNonce()
@@ -76,25 +77,22 @@ class BTCE(ExchangeData):
         orderbook = {}
         self.conn.request("GET","/api/3/depth/"+'-'.join(self.pairs))
         response = json.load(self.conn.getresponse())
-        for pair in response.keys():
+        for pair,data in response.keys():
             CUR_1,CUR_2 = map(lambda x:x.upper(),pair.split("_"))
-            
-            H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
-            nonce = self.getNonce()
-            params = {"method":"getInfo","nonce":nonce}
-            params = urllib.urlencode(params)
-        H.update(params)
-        sign = H.hexdigest()
-        headers = {"Content-type":"application/x-www-form-urlencoded","Key":self.BTC_api_key,"Sign":sign}
-        self.conn = httplib.HTTPSConnection("btc-e.com")
-        self.conn.request("POST","/tapi",params,headers)
-        response = self.conn.getresponse()
-        self.lprint(json.load(response))
-        raise
+            asks = data['asks']
+            bids = data['bids']
+            orderbook[CUR_1][CUR_2] = []
+            for variable_cost,volume in asks:
+                orderbook[CUR_1][CUR_2].append({'fixed_cost':0.0,'variable_cost':variable_cost,'volume':volume})
+            orderbook[CUR_2][CUR_1] = []
+            for variable_cost,volume in bids:
+                orderbook[CUR_2][CUR_1].append('fixed_cost':0.0,'variable_cost':1.0/variable_cost,'volume':volume})
+        return orderbook
     def cleanup(self):
         self.conn.close()
 
-bitce = BTCE(lambda x:x,Lock())
+def loprint(text):print text
+bitce = BTCE(loprint,Lock())
 
 class BITFINEX(ExchangeData):
     def initialize(self):
