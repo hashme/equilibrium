@@ -52,13 +52,12 @@ class BTCE(ExchangeData):
         f_h = open('btcenonce.dat','w')
         f_h.write(str(nonce))
         f_h.close()
-        print nonce
         return str(nonce)
     def initialize(self):
         self.name = 'BTCE'
         self.BTC_api_key = "E7UP1XGZ-YVSGL06A-1IIMJBLC-EQFQT2JV-DY4QED4H"
         self.BTC_api_secret = "59445bb18d7a33cc40f803a2a72f7ac2e687ccd11ddbd8e5843be56b30eb5755"
-        self.forbidden_currencies = ['USD','CNC']
+        self.forbidden_currencies = ['USD','CNH','EUR','GBP','RUR']
         self.conn = httplib.HTTPSConnection("btc-e.com")
         self.conn.request("GET","/api/3/info")
         response = json.load(self.conn.getresponse())
@@ -86,11 +85,11 @@ class BTCE(ExchangeData):
         return dict(map(lambda i:(i[0].upper()+'_BTCE',i[1]),funds))
     def frame(self):
         orderbook = dict([(CUR,{}) for CUR in self.currencies])
-        orderbook = dict([(CUR,orderbook) for CUR in self.currencies])
+        orderbook = dict([(CUR,orderbook.copy()) for CUR in self.currencies])
         self.conn.request("GET","/api/3/depth/"+'-'.join(self.pairs))
         response = json.load(self.conn.getresponse())
         for pair,data in response.items():
-            CUR_1,CUR_2 = map(lambda x:x.upper(),pair.split("_"))
+            CUR_1,CUR_2 = pair.upper().split('_')
             asks = data['asks']
             bids = data['bids']
             orderbook[CUR_1][CUR_2] = []
@@ -104,8 +103,17 @@ class BTCE(ExchangeData):
         self.conn.close()
 
 def testUpdate(orderbook):
-    print orderbook.keys()
+    prices = [
+              1./orderbook['BTC']['LTC'][0]['variable_cost'],
+              orderbook['LTC']['BTC'][0]['variable_cost'],
+              1./orderbook['LTC']['BTC'][0]['variable_cost'],
+              orderbook['BTC']['LTC'][0]['variable_cost']
+]
+    print prices
+    print sorted(prices)
+    # should be the same
     time.sleep(10000)
+
 bitce = BTCE(testUpdate,Lock())
 
 class BITFINEX(ExchangeData):
