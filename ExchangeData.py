@@ -10,7 +10,7 @@ from multiprocessing import Process, Lock
 
 DEBUG = True
 
-class ExchangeData:
+class Exchange:
     def lprint(self,text):
         with self.printlock:
             print text
@@ -19,6 +19,13 @@ class ExchangeData:
     def frame(self):
         pass
     def cleanup(self):
+        pass
+    def balance(self):
+        pass
+    def trade(self, currency_from, currency_to, amount, price):
+        # This is just executing the trade orderbook[currency_from][currency_to] = {volume:amount}
+        pass
+    def transfer(self, currency, amount, address):
         pass
     def run(self):
         self.initialize()
@@ -33,15 +40,13 @@ class ExchangeData:
                 self.lprint('! ' + str(e))
                 if DEBUG:raise
         self.cleanup()
-    def balance(self):
-        pass
     def __init__(self, update, printlock):
         self.update = update
         self.printlock = printlock
         p = Process(target = self.run)
         p.start()
 
-class BTCE(ExchangeData):
+class BTCE(Exchange):
     def getNonce(self):
         nonce = ''
         try:
@@ -94,6 +99,7 @@ class BTCE(ExchangeData):
             asks = data['asks']
             bids = data['bids']
             orderbook[CUR_1][CUR_2] = []
+            # Fees aren't being taken into account - eventually they should be
             for variable_cost,volume in asks:
                 orderbook[CUR_1][CUR_2].append({'fixed_cost':0.0,'variable_cost':variable_cost,'volume':volume})
             orderbook[CUR_2][CUR_1] = []
@@ -130,10 +136,34 @@ bitce.lprint(bitce.balance())
 class BITFINEX(ExchangeData):
     def initialize(self):
         self.name = 'BITFINEX'
+        self.conn = httplib.HTTPSConnection("api.bitfinex.com")
+        self.conn.request("GET","/v1/symbols")
+        response = self.conn.getresponse()
+        if response!='["btcusd","ltcusd","ltcbtc"]':
+            self.lprint("! ERROR INITIALIZING BITFINEX - CURRENCIES DON'T MATCH UP"+'\n! '+response)
+            raise Exception
     def frame(self):
+        self.conn.request("GET","/v1/book/ltcbtc")
+        data = json.load(self.conn.getresponse())
+        asks = data['asks']
+        bids = data['bids']
+        orderbook = {'LTC_BITFINEX':{'BTC_BITFINEX':[]},'BTC_BITFINEX':{'LTC_BITFINEX':[]}}
+        for item in asks:
+            orderbook['LTC_BITFINEX']['BTC_BITFINEX'].append({'fixed_cost':0.0,'variable_cost':,'volume':})
+        for item in bids:
+            orderbook['BTC_BITFINEX']['LTC_BITFINEX'].append({'fixed_cost':0.0,'variable_cost':,'volume':})
+
+
+            for variable_cost,volume in asks:
+                orderbook[CUR_1][CUR_2].append({'fixed_cost':0.0,'variable_cost':variable_cost,'volume':volume})
+            orderbook[CUR_2][CUR_1] = []
+            for variable_cost,volume in bids:
+                orderbook[CUR_2][CUR_1].append({'fixed_cost':0.0,'variable_cost':1.0/variable_cost,'volume':volume})
+        
+    def balance(self):
         pass
     def cleanup(self):
-        pass
+        self.conn.close()
 
 class MINTPAL(ExchangeData):
     def initialize(self):

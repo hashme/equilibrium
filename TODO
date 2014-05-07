@@ -38,22 +38,23 @@ MODULE STRUCTURE
 
 DATA STRUCTURES
 
-orderbook[CUR_1][CUR_2] = [{'variable_cost':1.02,'volume':40,'fixed_cost':0.0},{'variable_cost':1.03,'volume':30,'fixed_cost':0.01},...]
-variable_cost is how much you can immediately buy 1 unit of CUR_1 for in terms of CUR_2
-variable_cost is how much someone else is selling 1 unit of CUR_1 for in terms of CUR_2
-1.0/variable_cost is how much you can immediately sell 1 unit of CUR_2 in terms of CUR_1
-1.0/variable_cost is how much someone else is buying 1 unit of CUR_2 in terms of CUR_1
-fixed_cost is how much it costs in CUR_1 to purchase any number of units of CUR_1
 
-orderbook[CUR_2][CUR_1] = [{'variable_cost':1.00,'volume':30,'fixed_cost':0.01},{'variable_cost':0.99,'volume':10,'fixed_cost':0.01},...]
-variable_cost is how much you can immediately buy 1 unit of CUR_2 for in terms of CUR_1
-variable_cost is how much someone else is selling 1 unit of CUR_2 for in terms of CUR_1
-1.0/variable_cost is how much you can immediately sell 1 unit of CUR_1 for in terms of CUR_2
-1.0/variable_cost is how much someone else is buying 1 unit of CUR_1 in terms of CUR_2
-fixed_cost is how much it costs in CUR_2 to purchase any number of units of CUR_2
+orderbook[CUR_1][CUR_2] = [{'ratio':1.02,'cost':0.0,'volume':30},...]
+trade starting from CUR_1 ending in CUR_2
+trading CUR_1 for CUR_2
+ratio means if we have volume of CUR_1, we'll end up with volume*ratio of CUR_2
+so ratio of 2 means executing the trade gives us about double the amount of CUR_2 as CUR_1 we traded
+cost is the transaction cost for this trade, in terms of CUR_2
+so executing this trade start with volume of CUR_1, end with ratio * volume - cost in CUR_2
+cost usually refers to transaction fees, and will usually be negligible, so can often be ignored
+
+orderbook[CUR_1][CUR_2]['ratio'] > 1.0/orderbook[CUR_2][CUR_1]['ratio']
+(since the first one is an immediate trade of CUR_1 for CUR_2)
+
 
 balance[CUR] = float
 just a dictionary of balances
+
 
 currency is formatted like
 BTC_BTCE
