@@ -14,8 +14,9 @@ MODULE STRUCTURE
 
 -> Exchange data module
 --> Classes represent exchanges
---> Instantiate a class with a callback, delay
---> Every frame it calls callback with orderbook data structure below
+--> Instantiate a class with an update function, delay
+--> Every frame it calls update with orderbook data structure below
+--> balance returns balance data structure
 
 -> Exchange trading/transfer module
 --> Classes represent exchanges
@@ -35,7 +36,7 @@ MODULE STRUCTURE
 --> Brain keeps track of profit so far and prints this out and other stats
 
 
-DATA STRUCTURE
+DATA STRUCTURES
 
 orderbook[CUR_1][CUR_2] = [{'variable_cost':1.02,'volume':40,'fixed_cost':0.0},{'variable_cost':1.03,'volume':30,'fixed_cost':0.01},...]
 variable_cost is how much you can immediately buy 1 unit of CUR_1 for in terms of CUR_2
@@ -50,6 +51,9 @@ variable_cost is how much someone else is selling 1 unit of CUR_2 for in terms o
 1.0/variable_cost is how much you can immediately sell 1 unit of CUR_1 for in terms of CUR_2
 1.0/variable_cost is how much someone else is buying 1 unit of CUR_1 in terms of CUR_2
 fixed_cost is how much it costs in CUR_2 to purchase any number of units of CUR_2
+
+balance[CUR] = float
+just a dictionary of balances
 
 currency is formatted like
 BTC_BTCE

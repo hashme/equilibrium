@@ -29,8 +29,6 @@ class ExchangeData:
                 self.lprint('! ERROR GRABBING DATA IN EXCHANGE {0}'.format(self.name))
                 self.lprint('! ' + str(e))
         self.cleanup()
-    def balance(self):
-        pass
     def __init__(self, callback, printlock):
         self.callback = callback
         self.printlock = printlock
@@ -55,12 +53,13 @@ class BTCE(ExchangeData):
         self.name = 'BTCE'
         self.BTC_api_key = "E7UP1XGZ-YVSGL06A-1IIMJBLC-EQFQT2JV-DY4QED4H"
         self.BTC_api_secret = "59445bb18d7a33cc40f803a2a72f7ac2e687ccd11ddbd8e5843be56b30eb5755"
-        self.conn = httplib.HTTPSConnection("btc-e.com")
-        self.conn.request("GET","/api/3/info")
-        response = json.load(self.conn.getresponse())
-        self.fees = dict(map(lambda i: (i[0],i[1]['fee']),response['pairs'].items()))
-        self.pairs = self.fees.keys()
-    def balance(self):
+        conn = httplib.HTTPSConnection("btc-e.com")
+        conn.request("GET", "/api/2/"+couple+"/"+param)
+        response = conn.getresponse()
+        data = json.load(response)
+        conn.close()
+        
+
         H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
         nonce = self.getNonce()
         params = {"method":"getInfo","nonce":nonce}
@@ -68,29 +67,12 @@ class BTCE(ExchangeData):
         H.update(params)
         sign = H.hexdigest()
         headers = {"Content-type":"application/x-www-form-urlencoded","Key":self.BTC_api_key,"Sign":sign}
-        self.conn.request("POST","/tapi",params,headers)
-        response = self.conn.getresponse()
-        funds = json.load(response)['funds']
-        return dict(map(lambda i:(i[0].upper()+'_BTCE',i[1]),funds))
-    def frame(self):
-        orderbook = {}
-        self.conn.request("GET","/api/3/depth/"+'-'.join(self.pairs))
-        response = json.load(self.conn.getresponse())
-        for pair in response.keys():
-            CUR_1,CUR_2 = map(lambda x:x.upper(),pair.split("_"))
-            
-            H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
-            nonce = self.getNonce()
-            params = {"method":"getInfo","nonce":nonce}
-            params = urllib.urlencode(params)
-        H.update(params)
-        sign = H.hexdigest()
-        headers = {"Content-type":"application/x-www-form-urlencoded","Key":self.BTC_api_key,"Sign":sign}
         self.conn = httplib.HTTPSConnection("btc-e.com")
         self.conn.request("POST","/tapi",params,headers)
         response = self.conn.getresponse()
         self.lprint(json.load(response))
-        raise
+    def frame(self):
+        pass
     def cleanup(self):
         self.conn.close()
 
