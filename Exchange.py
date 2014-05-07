@@ -157,6 +157,16 @@ class BITFINEX(Exchange):
         if response!='["btcusd","ltcusd","ltcbtc"]':
             self.lprint("! ERROR INITIALIZING BITFINEX - CURRENCIES DON'T MATCH UP"+'\n! '+response)
             raise Exception
+    def balance(self):
+        # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
+        pass
+    def trade(self, currency_from, currency_to, ratio, amount):
+        # Executes trade corresponding to orderbook[currency_from][currency_to] = {'ratio':ratio,'volume':amount}
+        # Blocks until trade is complete.
+        pass
+    def transfer(self, currency, amount, address):
+        # Transfers currency (e.g, "BTC_EXCHANGE") in amount amount to external address address.
+        pass
     def frame(self):
         self.conn.request("GET","/v1/book/ltcbtc")
         data = json.load(self.conn.getresponse())
@@ -284,11 +294,11 @@ class POLONIEX(Exchange):
         # Called on exit. self.conn.close()?
         pass
 
-class (Exchange):
+class CRYPTSY(Exchange):
     def initialize(self):
         # Is called to initialize this module. 
         # Recommend setting self.conn and all instance variables.
-        self.name = 'EXCHANGE'
+        self.name = 'CRYPTSY'
     def balance(self):
         # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
         pass
