@@ -31,8 +31,12 @@ class Exchange:
     def frame(self):
         # Is called very often and must return orderbook.
         # orderbook[CUR_1][CUR_2] = {'ratio':ratio,'cost':cost,'volume':volume}
+        # If we start with volume of CUR_1, we can instantly turn it into (ratio*volume)-cost of CUR_2.
+        # Conversion from cost in terms of CUR_1 before trade to cost in terms of CUR_2 after trade
+        # (which is what we want) is cost_in_CUR_1_before_trade * ratio = cost_in_CUR_2_after_trade.
         pass
     def cleanup(self):
+        # Called on exit. self.conn.close()?
         pass
     def run(self):
         self.initialize()
@@ -144,7 +148,7 @@ bitce = BTCE(functools.partial(testUpdate,'BTC_BTCE','LTC_BTCE'),Lock())
 time.sleep(10)
 bitce.lprint(bitce.balance())
 
-class BITFINEX(ExchangeData):
+class BITFINEX(Exchange):
     def initialize(self):
         self.name = 'BITFINEX'
         self.conn = httplib.HTTPSConnection("api.bitfinex.com")
@@ -176,43 +180,159 @@ class BITFINEX(ExchangeData):
     def cleanup(self):
         self.conn.close()
 
-class MINTPAL(ExchangeData):
+class MINTPAL(Exchange):
     def initialize(self):
+        # Is called to initialize this module. 
+        # Recommend setting self.conn and all instance variables.
         self.name = 'MINTPAL'
+    def balance(self):
+        # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
+        pass
+    def trade(self, currency_from, currency_to, ratio, amount):
+        # Executes trade corresponding to orderbook[currency_from][currency_to] = {'ratio':ratio,'volume':amount}
+        # Blocks until trade is complete.
+        pass
+    def transfer(self, currency, amount, address):
+        # Transfers currency (e.g, "BTC_EXCHANGE") in amount amount to external address address.
+        pass
     def frame(self):
+        # Is called very often and must return orderbook.
+        # orderbook[CUR_1][CUR_2] = {'ratio':ratio,'cost':cost,'volume':volume}
+        # If we start with volume of CUR_1, we can instantly turn it into (ratio*volume)-cost of CUR_2.
+        # Conversion from cost in terms of CUR_1 before trade to cost in terms of CUR_2 after trade
+        # (which is what we want) is cost_in_CUR_1_before_trade * ratio = cost_in_CUR_2_after_trade.
         pass
     def cleanup(self):
+        # Called on exit. self.conn.close()?
         pass
 
-class KRAKEN(ExchangeData):
+class KRAKEN(Exchange):
     def initialize(self):
+        # Is called to initialize this module. 
+        # Recommend setting self.conn and all instance variables.
         self.name = 'KRAKEN'
+    def balance(self):
+        # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
+        pass
+    def trade(self, currency_from, currency_to, ratio, amount):
+        # Executes trade corresponding to orderbook[currency_from][currency_to] = {'ratio':ratio,'volume':amount}
+        # Blocks until trade is complete.
+        pass
+    def transfer(self, currency, amount, address):
+        # Transfers currency (e.g, "BTC_EXCHANGE") in amount amount to external address address.
+        pass
     def frame(self):
+        # Is called very often and must return orderbook.
+        # orderbook[CUR_1][CUR_2] = {'ratio':ratio,'cost':cost,'volume':volume}
+        # If we start with volume of CUR_1, we can instantly turn it into (ratio*volume)-cost of CUR_2.
+        # Conversion from cost in terms of CUR_1 before trade to cost in terms of CUR_2 after trade
+        # (which is what we want) is cost_in_CUR_1_before_trade * ratio = cost_in_CUR_2_after_trade.
         pass
     def cleanup(self):
+        # Called on exit. self.conn.close()?
         pass
 
-class BTER(ExchangeData):
+class BTER(Exchange):
     def initialize(self):
+        # Is called to initialize this module. 
+        # Recommend setting self.conn and all instance variables.
         self.name = 'BTER'
+    def balance(self):
+        # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
+        pass
+    def trade(self, currency_from, currency_to, ratio, amount):
+        # Executes trade corresponding to orderbook[currency_from][currency_to] = {'ratio':ratio,'volume':amount}
+        # Blocks until trade is complete.
+        pass
+    def transfer(self, currency, amount, address):
+        # Transfers currency (e.g, "BTC_EXCHANGE") in amount amount to external address address.
+        pass
     def frame(self):
+        # Is called very often and must return orderbook.
+        # orderbook[CUR_1][CUR_2] = {'ratio':ratio,'cost':cost,'volume':volume}
+        # If we start with volume of CUR_1, we can instantly turn it into (ratio*volume)-cost of CUR_2.
+        # Conversion from cost in terms of CUR_1 before trade to cost in terms of CUR_2 after trade
+        # (which is what we want) is cost_in_CUR_1_before_trade * ratio = cost_in_CUR_2_after_trade.
         pass
     def cleanup(self):
+        # Called on exit. self.conn.close()?
         pass
 
-class POLONIEX(ExchangeData):
+class POLONIEX(Exchange):
     def initialize(self):
+        # Is called to initialize this module. 
+        # Recommend setting self.conn and all instance variables.
         self.name = 'POLONIEX'
+    def balance(self):
+        # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
+        pass
+    def trade(self, currency_from, currency_to, ratio, amount):
+        # Executes trade corresponding to orderbook[currency_from][currency_to] = {'ratio':ratio,'volume':amount}
+        # Blocks until trade is complete.
+        pass
+    def transfer(self, currency, amount, address):
+        # Transfers currency (e.g, "BTC_EXCHANGE") in amount amount to external address address.
+        pass
     def frame(self):
+        # Is called very often and must return orderbook.
+        # orderbook[CUR_1][CUR_2] = {'ratio':ratio,'cost':cost,'volume':volume}
+        # If we start with volume of CUR_1, we can instantly turn it into (ratio*volume)-cost of CUR_2.
+        # Conversion from cost in terms of CUR_1 before trade to cost in terms of CUR_2 after trade
+        # (which is what we want) is cost_in_CUR_1_before_trade * ratio = cost_in_CUR_2_after_trade.
         pass
     def cleanup(self):
+        # Called on exit. self.conn.close()?
         pass
 
-class EXMONEY(ExchangeData):
+class (Exchange):
     def initialize(self):
-        self.name = 'EXMONEY'
+        # Is called to initialize this module. 
+        # Recommend setting self.conn and all instance variables.
+        self.name = 'EXCHANGE'
+    def balance(self):
+        # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
+        pass
+    def trade(self, currency_from, currency_to, ratio, amount):
+        # Executes trade corresponding to orderbook[currency_from][currency_to] = {'ratio':ratio,'volume':amount}
+        # Blocks until trade is complete.
+        pass
+    def transfer(self, currency, amount, address):
+        # Transfers currency (e.g, "BTC_EXCHANGE") in amount amount to external address address.
+        pass
     def frame(self):
+        # Is called very often and must return orderbook.
+        # orderbook[CUR_1][CUR_2] = {'ratio':ratio,'cost':cost,'volume':volume}
+        # If we start with volume of CUR_1, we can instantly turn it into (ratio*volume)-cost of CUR_2.
+        # Conversion from cost in terms of CUR_1 before trade to cost in terms of CUR_2 after trade
+        # (which is what we want) is cost_in_CUR_1_before_trade * ratio = cost_in_CUR_2_after_trade.
         pass
     def cleanup(self):
+        # Called on exit. self.conn.close()?
+        pass
+
+class EXMONEY(Exchange):
+    def initialize(self):
+        # Is called to initialize this module. 
+        # Recommend setting self.conn and all instance variables.
+        self.name = 'EXMONEY'
+    def balance(self):
+        # Returns balance, which looks like {'BTC_EXCHANGE':0.82,'LTC_EXCHANGE':10.34}
+        pass
+    def trade(self, currency_from, currency_to, ratio, amount):
+        # Executes trade corresponding to orderbook[currency_from][currency_to] = {'ratio':ratio,'volume':amount}
+        # Blocks until trade is complete.
+        pass
+    def transfer(self, currency, amount, address):
+        # Transfers currency (e.g, "BTC_EXCHANGE") in amount amount to external address address.
+        pass
+    def frame(self):
+        # Is called very often and must return orderbook.
+        # orderbook[CUR_1][CUR_2] = {'ratio':ratio,'cost':cost,'volume':volume}
+        # If we start with volume of CUR_1, we can instantly turn it into (ratio*volume)-cost of CUR_2.
+        # Conversion from cost in terms of CUR_1 before trade to cost in terms of CUR_2 after trade
+        # (which is what we want) is cost_in_CUR_1_before_trade * ratio = cost_in_CUR_2_after_trade.
+        pass
+    def cleanup(self):
+        # Called on exit. self.conn.close()?
         pass
 
