@@ -63,7 +63,15 @@ class BTCE(ExchangeData):
         self.conn.request("GET","/api/3/info")
         response = json.load(self.conn.getresponse())
         self.fees = dict(map(lambda i: (i[0],float(i[1]['fee'])/100.),response['pairs'].items()))
-        self.pairs = filter(lambda x:x not in self.forbidden_currencies,self.fees.keys())
+        self.pairs = []
+        self.currencies = []
+        for pair in self.fees.keys():
+            CUR_1,CUR_2 = pair.upper().split('_')
+            if CUR_1 in self.forbidden_currencies or CUR_2 in self.forbidden_currencies:
+                continue
+            self.pairs.append(pair)
+            self.currencies.append(CUR_1)
+            self.currencies.append(CUR_2)
     def balance(self):
         H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
         nonce = self.getNonce()
@@ -77,7 +85,8 @@ class BTCE(ExchangeData):
         funds = json.load(response)['funds']
         return dict(map(lambda i:(i[0].upper()+'_BTCE',i[1]),funds))
     def frame(self):
-        orderbook = {}
+        orderbook = dict([(CUR,{}) for CUR in self.currencies])
+        orderbook = dict([(CUR,orderbook) for CUR in self.currencies])
         self.conn.request("GET","/api/3/depth/"+'-'.join(self.pairs))
         response = json.load(self.conn.getresponse())
         for pair,data in response.items():
