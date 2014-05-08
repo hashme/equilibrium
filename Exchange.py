@@ -195,7 +195,7 @@ def testUpdate(valuable,unvaluable,orderbook):
     time.sleep(10000)
 
 plock = Lock()
-#bitce = BTCE(functools.partial(testUpdate,'BTC_BTCE','LTC_BTCE'),plock)
+bitce = BTCE(functools.partial(testUpdate,'BTC_BTCE','LTC_BTCE'),plock)
 bitfinex = BITFINEX(functools.partial(testUpdate,'BTC_BITFINEX','LTC_BITFINEX'),plock)
 #time.sleep(10)
 #bitce.lprint(bitce.balance())
